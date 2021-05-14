@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "riscv-process-py"
+version = "0.1.0"
+description = "This is a RISC-V assembly process library"
+authors = ["imlyzh <enterindex@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/imlyzh/riscv-process-py"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.812"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
