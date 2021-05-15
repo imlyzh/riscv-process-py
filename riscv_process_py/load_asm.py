@@ -1,5 +1,9 @@
-from typing import Dict, Iterable, List
+from typing import Dict, Iterable, List, Match, Optional, Pattern
 import re
+from functools import reduce
+from operator import add
+
+from .instruction import Inst
 
 x_reg = r'(x\d{1,2})'
 
@@ -32,10 +36,13 @@ def gen_imm_matching(name: str) -> str:
 
 
 def gen_params_matching(name: str) -> str:
+	if name in ('rd', 'rs1', 'rs2'):
+		return gen_reg_matching(name)
 	if name == 'imm':
 		return gen_imm_matching(name)
-	if name in ('rd', 'rs1', 'rs2', 'csr'):
-		return gen_reg_matching(name)
+	if name == 'csr':
+		# todo: Complete csr
+		pass
 	raise MatchException('你这玩意能返回点啥你自己心里没点数啊')
 
 
@@ -169,3 +176,36 @@ csr2_matching_table = {
 	i: gen_csr2_matching(i)
 	for i in csr2_list
 }
+
+matching_str_lists: List[Dict[str, str]] = [
+	type1_matching_table,
+	type2_matching_table,
+	type3_matching_table,
+	type4_matching_table,
+	type1_matching_table,
+	csr1_matching_table,
+	csr2_matching_table,
+]
+
+matching_str_list: List[str] = reduce(add, [list(i.values()) for i in matching_str_lists])
+
+matching_list: List[Pattern[str]] = [re.compile(i) for i in matching_str_list]
+
+def matching(i: str) -> Inst:
+	r: Optional[Match[str]] = None
+	for reg in matching_list:
+		r = re.match(reg, i)
+		if r is not None: break
+
+	if r is None:
+		raise MatchException('not a instruction')
+
+	record = r.groupdict()
+	return Inst(
+		record['code'],
+		record.get('rd'),
+		record.get('rs1'),
+		record.get('rs2'),
+		record.get('csr'),
+		record.get('imm'))
+

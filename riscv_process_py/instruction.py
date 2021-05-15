@@ -1,6 +1,7 @@
 from typing import Optional
+from dataclasses import dataclass
 
-
+@dataclass
 class Inst:
 	code: str
 	rd: Optional[str]
