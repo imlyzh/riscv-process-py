@@ -21,6 +21,11 @@ reg_regex = r'({x_reg}|{s_reg}|{t_reg}|{a_reg}|zero|ra|sp|gp|tp|fp|)'.format(
 
 number_regex = r'((+|-)?0x\d+|(+|-)?\d+)'
 
+sym = r'\w+'
+
+symbol = r'(({a})|({b}))'.format(a=number_regex, b=sym)
+
+
 class MatchException(Exception):
 	def __init__(self, *args: object) -> None:
 		super().__init__(*args)
@@ -38,7 +43,7 @@ def gen_imm_matching(name: str) -> str:
 def gen_params_matching(name: str) -> str:
 	if name in ('rd', 'rs1', 'rs2'):
 		return gen_reg_matching(name)
-	if name == 'imm':
+	if name in ('imm', 'symbol'):
 		return gen_imm_matching(name)
 	if name == 'csr':
 		# todo: Complete csr
