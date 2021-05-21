@@ -4,26 +4,7 @@ from functools import reduce
 from operator import add
 
 from .instruction import Inst
-
-x_reg = r'(x\d{1,2})'
-
-s_reg = r'(s\d{1,2})'
-
-t_reg = r'(t[0-6])'
-
-a_reg = r'(a[0-7])'
-
-reg_regex = r'({x_reg}|{s_reg}|{t_reg}|{a_reg}|zero|ra|sp|gp|tp|fp|)'.format(
-	x_reg=x_reg,
-	s_reg=s_reg,
-	t_reg=t_reg,
-	a_reg=a_reg)
-
-number_regex = r'((+|-)?0x\d+|(+|-)?\d+)'
-
-sym = r'\w+'
-
-symbol = r'(({a})|({b}))'.format(a=number_regex, b=sym)
+from .common import *
 
 
 class MatchException(Exception):
@@ -32,19 +13,11 @@ class MatchException(Exception):
 		self.body = args[0]
 
 
-def gen_reg_matching(name: str) -> str:
-	return r'(?P<{name}>{reg})'.format(name=name, reg=reg_regex)
-
-
-def gen_imm_matching(name: str) -> str:
-	return r'(?P<{name}>{imm})'.format(name=name, imm=number_regex)
-
-
 def gen_params_matching(name: str) -> str:
 	if name in ('rd', 'rs1', 'rs2'):
-		return gen_reg_matching(name)
+		return gen_reg_match(name)
 	if name in ('imm', 'symbol'):
-		return gen_imm_matching(name)
+		return gen_imm_match(name)
 	if name == 'csr':
 		# todo: Complete csr
 		pass
@@ -195,6 +168,7 @@ matching_str_lists: List[Dict[str, str]] = [
 matching_str_list: List[str] = reduce(add, [list(i.values()) for i in matching_str_lists])
 
 matching_list: List[Pattern[str]] = [re.compile(i) for i in matching_str_list]
+
 
 def matching(i: str) -> Inst:
 	r: Optional[Match[str]] = None
