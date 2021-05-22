@@ -1,5 +1,10 @@
 
 
+class MatchException(Exception):
+	def __init__(self, *args: object) -> None:
+		super().__init__(*args)
+		self.body = args[0]
+
 x_reg = r'(x\d{1,2})'
 
 s_reg = r'(s\d{1,2})'

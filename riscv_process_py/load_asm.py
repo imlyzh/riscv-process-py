@@ -7,12 +7,6 @@ from .instruction import Inst
 from .common import *
 
 
-class MatchException(Exception):
-	def __init__(self, *args: object) -> None:
-		super().__init__(*args)
-		self.body = args[0]
-
-
 def gen_params_matching(name: str) -> str:
 	if name in ('rd', 'rs1', 'rs2'):
 		return gen_reg_match(name)
