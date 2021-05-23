@@ -134,3 +134,6 @@ dmypy.json
 # vscode
 .vscode
 
+# data
+llvm_runner/data
+llvm_runner/cache
