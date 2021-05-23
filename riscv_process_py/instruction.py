@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 from dataclasses import dataclass
 
 
@@ -9,7 +9,7 @@ class Inst:
 	rs1: Optional[str] = None
 	rs2: Optional[str] = None
 	csr: Optional[str] = None
-	imm: Optional[str] = None
+	imm: Optional[Union[str, int]] = None
 
 	def __getitem__(self, item: str) -> Optional[str]:
 		return getattr(self, item)

@@ -19,8 +19,8 @@ def gen_params_matching(name: str) -> str:
 
 def gen_matching(code: str, *symbols: str) -> str:
     regexes = [gen_params_matching(i) for i in symbols]
-    r = ", ".join(regexes)
-    return code + " " + r
+    r = f"{white},{white}".join(regexes)
+    return f"{white}(?P<code>{code}){white1}{r}{white}"
 
 
 def gen_type1_matching(code: str) -> str:
@@ -169,15 +169,15 @@ matching_str_list: List[str] = reduce(add, [list(i.values()) for i in matching_s
 matching_list: List[Pattern[str]] = [re.compile(i) for i in matching_str_list]
 
 
-def matching(inst_str: str) -> Inst:
+def match(inst_str: str) -> Optional[Inst]:
     r: Optional[Match[str]] = None
     for reg in matching_list:
-        r = re.match(reg, inst_str)
+        r = reg.match(inst_str)
         if r is not None:
             break
 
     if r is None:
-        raise MatchException(f'Can not resolve: {inst_str} as an instruction')
+        return None
 
     record = r.groupdict()
     return Inst(

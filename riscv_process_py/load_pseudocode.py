@@ -10,34 +10,34 @@ Records = Dict[str, re.Pattern]
 
 
 def gen_type1_pcode(code):
-    return f'{code} {gen_reg_match("rd")}, {gen_sym_match("symbol")}, {gen_reg_match("rt")}'
+    return f'{white}{code}{white1}{gen_reg_match("rd")}{white},{white}{gen_sym_match("symbol")},{white}{gen_reg_match("rt")}{white}'
 
 
 def gen_type2_pcode(code):
-    return f'{code} {gen_reg_match("rd")}, {gen_reg_match("rs")}'
+    return f'{white}{code}{white1}{gen_reg_match("rd")}{white},{white}{gen_reg_match("rs")}{white}'
 
 
 def gen_type3_pcode(code):
-    return f'{code} {gen_reg_match("rs")}, {gen_sym_match("offset")}'
+    return f'{white}{code}{white1}{gen_reg_match("rs")}{white},{white}{gen_sym_match("offset")}{white}'
 
 
 def gen_type4_pcode(code):
-    return f'{code} {gen_reg_match("rs")}, {gen_reg_match("rt")}, {gen_sym_match("offset")}'
+    return f'{white}{code}{white1}{gen_reg_match("rs")}{white},{white}{gen_reg_match("rt")}{white},{white}{gen_sym_match("offset")}{white}'
 
 
 def gen_type5_pcode(code):
-    return f'{code} {gen_sym_match("offset")}'
+    return f'{white}{code}{white1}{gen_sym_match("offset")}{white}'
 
 
 def gen_type6_pcode(code):
-    return f'{code} {gen_reg_match("rs")}'
+    return f'{white}{code}{white1}{gen_reg_match("rs")}{white}'
 
 
-nop = 'nop'
-ret = 'ret'
-fence = 'fence'
-la = f'la {gen_reg_match("rd")}, {gen_sym_match("symbol")}'
-li = f'li {gen_reg_match("rd")}, {gen_imm_match("imm")}'
+nop = f'{white}nop{white}'
+ret = f'{white}ret{white}'
+fence = f'{white}fence{white}'
+la = f'{white}la{white1}{gen_reg_match("rd")}{white},{white}{gen_sym_match("symbol")}{white}'
+li = f'{white}li{white1}{gen_reg_match("rd")}{white},{white}{gen_imm_match("imm")}{white}'
 
 type1_pcode = [
     'lb',
@@ -204,62 +204,62 @@ def scope(i: str) -> TF:
 
     def beqz_transform(rs: str, offset: str):
         return [
-            Inst('beq', rs, 'x0', offset),
+            Inst('beq', rs, 'x0', imm=offset),
         ]
 
     def bnez_transform(rs: str, offset: str):
         return [
-            Inst('bne', rs, 'x0', offset),
+            Inst('bne', rs, 'x0', imm=offset),
         ]
 
     def blez_transform(rs: str, offset: str):
         return [
-            Inst('bge', 'x0', rs, offset),
+            Inst('bge', 'x0', rs, imm=offset),
         ]
 
     def bgez_transform(rs: str, offset: str):
         return [
-            Inst('bge', rs, 'x0', offset),
+            Inst('bge', rs, 'x0', imm=offset),
         ]
 
     def bltz_transform(rs: str, offset: str):
         return [
-            Inst('blt', rs, 'x0', offset),
+            Inst('blt', rs, 'x0', imm=offset),
         ]
 
     def bgtz_transform(rs: str, offset: str):
         return [
-            Inst('blt', 'x0', rs, offset),
+            Inst('blt', 'x0', rs, imm=offset),
         ]
 
     def bgt_transform(rt: str, rs: str, offset: str):
         return [
-            Inst('blt', rt, rs, offset),
+            Inst('blt', rt, rs, imm=offset),
         ]
 
     def ble_transform(rt: str, rs: str, offset: str):
         return [
-            Inst('bge', rt, rs, offset),
+            Inst('bge', rt, rs, imm=offset),
         ]
 
     def bgtu_transform(rt: str, rs: str, offset: str):
         return [
-            Inst('bltu', rt, rs, offset),
+            Inst('bltu', rt, rs, imm=offset),
         ]
 
     def bleu_transform(rt: str, rs: str, offset: str):
         return [
-            Inst('bgeu', rt, rs, offset),
+            Inst('bgeu', rt, rs, imm=offset),
         ]
 
     def j_transform(offset: str):
         return [
-            Inst('jal', 'x0', offset),
+            Inst('jal', 'x0', imm=offset),
         ]
 
     def jal_transform(offset: str):
         return [
-            Inst('jal', 'x1', offset),
+            Inst('jal', 'x1', imm=offset),
         ]
 
     def jr_transform(rs: str):
@@ -340,16 +340,17 @@ matching_list.update(type5_pair)
 matching_list.update(type6_pair)
 
 
-def match(i: str) -> List[Inst]:
+def match(i: str) -> Optional[List[Inst]]:
     inst: Optional[str] = None
     r: Optional[re.Match[str]] = None
-    for ins, reg in matching_list:
+    for ins, reg in matching_list.items():
         inst = ins
         r = re.match(reg, i)
         if r is not None:
             break
 
     if r is None:
-        raise MatchException('not a instruction')
+        return None
+
     transform = scope(inst)
     return transform(**r.groupdict())
