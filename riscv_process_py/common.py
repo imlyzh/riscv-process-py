@@ -35,4 +35,3 @@ def gen_imm_match(name: str) -> str:
 
 def gen_sym_match(name: str) -> str:
 	return rf'(?P<{name}>{number_re_str})'
-
