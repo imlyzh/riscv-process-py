@@ -1,7 +1,12 @@
 from typing import Union
+import re
 from .common import *
 from .instruction import *
 from .load import *
+
+offset_match_re: re.Pattern = re.compile(offset_match_re_str)
+
+macro_match_re: re.Pattern = re.compile(macro_match_re_str)
 
 
 def prep_reg(i: str) -> str:
@@ -10,7 +15,13 @@ def prep_reg(i: str) -> str:
     return register_mapping[i]
 
 
-def prep_imm(i: str) -> Union[str, int]:
+def prep_imm(i: str) -> Imm:
+    r = macro_match_re.match(i)
+    if r:
+        return Macro(name=r['name'], body=r['body'])
+    r = offset_match_re.match(i)
+    if r:
+        return Offset(base=r['base'], offset=r['offset'])
     try:
         return int(i)
     except ValueError:

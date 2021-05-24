@@ -6,4 +6,4 @@ def main(i: str):
     print(r)
 
 
-main("beqz a0, step114514")
+main("auipc	a0, %_msg(1)")

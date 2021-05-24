@@ -17,6 +17,18 @@ class Label:
     value: Union[int, str]
 
 
+@dataclass
+class Macro:
+    name: str
+    body: str
+
+
+@dataclass
+class Offset:
+    base: Union[str, int]
+    offset: int
+
+
 x_reg = r'(x\d{1,2})'
 
 s_reg = r'(s\d{1,2})'
@@ -27,11 +39,19 @@ a_reg = r'(a[0-7])'
 
 reg_re_str = rf'({x_reg}|{s_reg}|{t_reg}|{a_reg}|zero|ra|sp|gp|tp|fp|)'
 
-number_re_str = r'([+-]?\d+)'
+number_re_str = r'([+-]?(0x)?\d+b?)'
 
-sym_re_str = r'\w+'
+sym_re_str = r'[.\w]+'
 
-symbol_re_str = rf'({sym_re_str})|({number_re_str})'
+offset_sym_re_str = rf'{sym_re_str}\({number_re_str}\)'
+
+offset_match_re_str = rf'(?P<base>{sym_re_str})\((?P<offset>{number_re_str})\)'
+
+macro_sym_re_str = rf'%{sym_re_str}\({sym_re_str}\)'
+
+macro_match_re_str = rf'%(?P<name>{sym_re_str})\((?P<body>{sym_re_str})\)'
+
+symbol_re_str = rf'({macro_sym_re_str})|({offset_sym_re_str})|({sym_re_str})|({number_re_str})'
 
 white = r'\s*'
 white1 = r'\s+'
@@ -44,7 +64,7 @@ def gen_reg_match(name: str) -> str:
 
 
 def gen_imm_match(name: str) -> str:
-    return rf'(?P<{name}>{number_re_str})'
+    return rf'(?P<{name}>{symbol_re_str})'
 
 
 def gen_sym_match(name: str) -> str:
